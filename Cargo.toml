@@ -1,0 +1,41 @@
+[package]
+name = "alexkt"
+description = "An open source tool for Windows 95, 98 and XP licensing"
+version = "0.1.0"
+authors = ["Alexander Sagen <alexander@sagen.me>"]
+license = "AGPL-3.0-only"
+edition = "2024"
+
+[profile.dev]
+# Unwind support needs at least VC8 (VS2005)
+panic = "unwind"
+# panic = "abort"
+
+[profile.release]
+# enable these two for smaller binaries
+lto = "thin"
+codegen-units = 1
+debug = 2
+# Unwind support needs at least VC8 (VS2005)
+panic = "unwind"
+# panic = "abort"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+chrono = "0.4"
+log = "0.4"
+env_logger = "0.10"
+anyhow = "1.0"
+editpe = "0.2"
+winsafe = { version = "0.0.22", features = ["kernel"] }
+num-integer = "0.1"
+num-bigint = "0.4"
+num-prime = "0.4"
+num-traits = "0.2"
+num-iter = "0.1"
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+indexmap = { version = "2.9", features = ["serde"] }
+bitreader = "0.3"
+sha1_smol = "1.0"

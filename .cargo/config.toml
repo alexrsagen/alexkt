@@ -1,0 +1,85 @@
+[unstable]
+# using build-std will allow for smaller binaries (only include what you use)
+#
+# build-std = ["std"]
+
+# optimize_for_size replaces some size-expensive algorithms with smaller ones (sorting, int parsing,
+# ...)
+#
+# build-std-features = ["optimize_for_size"]
+
+[build]
+
+[target.'cfg(target_family = "rust9x")']
+linker = "rust-lld.exe"
+rustflags = [
+  # Show linker args for debugging purposes
+  '--print=link-args',
+
+  # IMPORTANT: the next two link args will ONLY work with rust-lld, not with a moder MSVC link.exe!
+  # if you can't use rust-lld for some reason, you'll need to add a post-compile step to use
+  # `editbin.exe` to set these instead: `editbin.exe /SUBSYSTEM:... /OSVERSION:...`
+  #
+  # set subsystem to WINDOWS or CONSOLE, with version 5.01 (Windows XP and up)
+  '-Clink-arg=/SUBSYSTEM:CONSOLE,5.1',
+  # set os version to 5.1 to work in Windows XP and up
+  '-Clink-arg=/OSVERSION:5.1',
+
+  # 1MB stack
+  '-Clink-arg=/STACK:1048576',
+
+  # statically linked runtime
+  '-Ctarget-feature=+crt-static',
+  # dynamically linked runtime
+  # '-Ctarget-feature=-crt-static',
+
+  #
+  # Add search paths for import libraries
+  #
+
+  # VC6: Stdlib doesn't support SAFESEH, panic = "abort" mandatory, unwinding fails
+  # '-Clink-arg=/SAFESEH:NO',
+  # '-Clink-arg=/LIBPATH:E:\dev\VS98_SP5\VC98\Lib',
+
+  # VC7.1: Win95 support, panic = "abort" mandatory, unwinding fails
+  # '-Clink-arg=/LIBPATH:E:\dev\vc71\Vc7\lib',
+  # '-Clink-arg=/LIBPATH:E:\dev\vc71\Vc7\PlatformSDK\Lib',
+  # # necessary for rust-lld, as it doesn't like the old pdb format used by VC7.1
+  # '-Clink-arg=/DEBUG:NONE',
+
+  # VC8: Win98+ support, panic unwinding works
+  # '-Clink-arg=/LIBPATH:E:\dev\vc8\VC\lib',
+  # '-Clink-arg=/LIBPATH:E:\dev\vc8\VC\PlatformSDK\Lib',
+
+  # VC15: Windows XP+ support, panic unwinding works
+  '-Clink-arg=/LIBPATH:C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.16.27023\lib\x86',
+  '-Clink-arg=/LIBPATH:C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10240.0\ucrt\x86', # Necessary to avoid undefined symbol FlsAlloc in kernel32.dll
+  '-Clink-arg=/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib',
+
+  # Any newer version of the toolsets should work just as well! Use e.g. the MSVC2017 XP toolset for
+  # the most modern XP support.
+
+  # (optional) Disable default libs for full control over linked libraries
+  # Note that you'll need to add libcmt or msvcrt manually if you disable default libraries
+  # '-Clink-args=/NODEFAULTLIB',
+  # '-Clink-args=libcmt.lib libucrt.lib',
+
+  # Do not link fileextd.lib, which is implemented in Rust9x
+  #
+  # The runtime error "The procedure entry point GetFileInformationByHandleEx could not be located in the dynamic link library KERNEL32.dll."
+  # happens regardless of the below line being commented out or left in.
+  '-Clink-arg=/NODEFAULTLIB:fileextd.lib',
+
+  # Remove default libs that unicows wraps/overrides
+  '-Clink-args=/NODEFAULTLIB:kernel32.lib /NODEFAULTLIB:advapi32.lib /NODEFAULTLIB:user32.lib /NODEFAULTLIB:gdi32.lib /NODEFAULTLIB:shell32.lib /NODEFAULTLIB:comdlg32.lib /NODEFAULTLIB:version.lib /NODEFAULTLIB:mpr.lib /NODEFAULTLIB:rasapi32.lib /NODEFAULTLIB:winmm.lib /NODEFAULTLIB:winspool.lib /NODEFAULTLIB:vfw32.lib /NODEFAULTLIB:secur32.lib /NODEFAULTLIB:oleacc.lib /NODEFAULTLIB:oledlg.lib /NODEFAULTLIB:sensapi.lib',
+
+  # Then link unicows itself, allowing the linker to resolve symbols to it instead of the wrapped
+  # libraries
+  '-Clink-arg=unicows.lib',
+
+  # Then add back the default libs that were removed
+  '-Clink-args=kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib',
+
+  # Add modern universal CRT for missing float/math intrinsics
+  '-Clink-arg=libucrt.lib',
+]

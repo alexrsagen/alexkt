@@ -5,7 +5,7 @@ use crate::pidgen;
 use crate::pidgen::v3::{KeyVersion, UnsignedProductKey};
 
 pub fn execute(app: &App, version: KeyVersion, bink_id: u32, channel_id: u32, upgrade: bool) -> Result<()> {
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
 	let ckp = app.keys.get_bink_by_id(bink_id).ok_or(anyhow!("could not find key with specified BINK ID"))?;
 

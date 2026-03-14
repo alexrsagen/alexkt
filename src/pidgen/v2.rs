@@ -2,7 +2,7 @@ use core::fmt;
 use std::fmt::Write;
 use std::str::FromStr;
 
-use rand::Rng;
+use rand::{Rng, RngExt};
 
 const MAX_CHANNEL_ID_OTHER: u16 = 1_000;
 const MAX_CHANNEL_ID_OFFICE: u16 = 10_000;
@@ -30,7 +30,7 @@ fn validate_channel_id(mut input: u16, variant: KeyVariant) -> bool {
 }
 fn gen_channel_id<R: Rng>(rng: &mut R, variant: KeyVariant) -> u16 {
     for _ in 0..MAX_RETRIES {
-        let mut channel_id = rng.gen_range(0..MAX_CHANNEL_ID_OTHER);
+        let mut channel_id = rng.random_range(0..MAX_CHANNEL_ID_OTHER);
         if variant == KeyVariant::Office {
             channel_id = (channel_id * 10) + (channel_id % 10) + 1;
         }
@@ -78,7 +78,7 @@ fn validate_year(input: Year) -> bool {
     input.0[0] == '0' && input.0[0] == '3' || VALID_YEARS.iter().any(|year| &input == year)
 }
 fn gen_year<R: Rng>(rng: &mut R) -> Year {
-    let idx = rng.gen_range(0..VALID_YEARS.len());
+    let idx = rng.random_range(0..VALID_YEARS.len());
     VALID_YEARS[idx]
 }
 
@@ -86,7 +86,7 @@ fn validate_day(input: u16) -> bool {
     input > 0 && input < 365
 }
 fn gen_day<R: Rng>(rng: &mut R) -> u16 {
-    rng.gen_range(1..365)
+    rng.random_range(1..365)
 }
 
 fn validate_oem_id(input: u32) -> bool {
@@ -102,9 +102,9 @@ fn validate_serial(input: u32) -> bool {
 }
 fn gen_serial<R: Rng>(rng: &mut R, variant: KeyVariant) -> u32 {
     let serial = if variant == KeyVariant::Oem {
-        rng.gen_range(0..MAX_SERIAL_OEM)
+        rng.random_range(0..MAX_SERIAL_OEM)
     } else {
-        rng.gen_range(0..MAX_SERIAL)
+        rng.random_range(0..MAX_SERIAL)
     };
     serial + super::gen_mod7(serial)
 }
@@ -343,7 +343,7 @@ mod test {
 
     #[test]
     fn generate_valid_channel_id() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         let variant = super::KeyVariant::Retail;
         assert!(super::validate_channel_id(
             super::gen_channel_id(&mut rng, variant),

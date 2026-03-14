@@ -6,7 +6,7 @@ use log::debug;
 use num_bigint::{BigInt, BigUint, RandomBits};
 use num_integer::Integer;
 use num_traits::ToPrimitive;
-use rand::Rng;
+use rand::{Rng, RngExt};
 use sha1_smol::Sha1;
 
 use super::error::{Error, Result};
@@ -141,7 +141,7 @@ pub struct UnsignedProductKey {
 
 impl UnsignedProductKey {
     pub fn new<R: Rng>(version: KeyVersion, channel_id: u32, upgrade: bool, rng: &mut R) -> Self {
-        let sequence_or_authinfo = rng.gen_range(0..version.max_seqauth());
+        let sequence_or_authinfo = rng.random_range(0..version.max_seqauth());
         Self::new_with_seqauth(version, channel_id, sequence_or_authinfo, upgrade)
     }
 

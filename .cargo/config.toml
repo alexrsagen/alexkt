@@ -8,6 +8,10 @@
 #
 # build-std-features = ["optimize_for_size"]
 
+[patch.crates-io]
+const-random = { git = "https://github.com/alexrsagen/rs-constrandom" }
+num-bigint = { git = "https://github.com/cuviper/num-bigint", branch = "rand-0.10" }
+
 [build]
 
 [target.'cfg(target_family = "rust9x")']
@@ -15,6 +19,10 @@ linker = "rust-lld.exe"
 rustflags = [
   # Show linker args for debugging purposes
   '--print=link-args',
+
+  # Use "getrandom" backend "windows_legacy"
+  # https://docs.rs/getrandom/latest/getrandom/#opt-in-backends
+  '--cfg', 'getrandom_backend="windows_legacy"',
 
   # IMPORTANT: the next two link args will ONLY work with rust-lld, not with a moder MSVC link.exe!
   # if you can't use rust-lld for some reason, you'll need to add a post-compile step to use
@@ -53,16 +61,11 @@ rustflags = [
 
   # VC15: Windows XP+ support, panic unwinding works
   '-Clink-arg=/LIBPATH:C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.16.27023\lib\x86',
-  '-Clink-arg=/LIBPATH:C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10240.0\ucrt\x86', # Necessary to avoid undefined symbol FlsAlloc in kernel32.dll
   '-Clink-arg=/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib',
+  '-Clink-arg=/LIBPATH:C:\Program Files (x86)\Windows Kits\10\Lib\10.0.10240.0\ucrt\x86', # Necessary to avoid undefined symbol FlsAlloc in kernel32.dll
 
   # Any newer version of the toolsets should work just as well! Use e.g. the MSVC2017 XP toolset for
   # the most modern XP support.
-
-  # (optional) Disable default libs for full control over linked libraries
-  # Note that you'll need to add libcmt or msvcrt manually if you disable default libraries
-  # '-Clink-args=/NODEFAULTLIB',
-  # '-Clink-args=libcmt.lib libucrt.lib',
 
   # Do not link fileextd.lib, which is implemented in Rust9x
   #
@@ -70,16 +73,6 @@ rustflags = [
   # happens regardless of the below line being commented out or left in.
   '-Clink-arg=/NODEFAULTLIB:fileextd.lib',
 
-  # Remove default libs that unicows wraps/overrides
-  '-Clink-args=/NODEFAULTLIB:kernel32.lib /NODEFAULTLIB:advapi32.lib /NODEFAULTLIB:user32.lib /NODEFAULTLIB:gdi32.lib /NODEFAULTLIB:shell32.lib /NODEFAULTLIB:comdlg32.lib /NODEFAULTLIB:version.lib /NODEFAULTLIB:mpr.lib /NODEFAULTLIB:rasapi32.lib /NODEFAULTLIB:winmm.lib /NODEFAULTLIB:winspool.lib /NODEFAULTLIB:vfw32.lib /NODEFAULTLIB:secur32.lib /NODEFAULTLIB:oleacc.lib /NODEFAULTLIB:oledlg.lib /NODEFAULTLIB:sensapi.lib',
-
-  # Then link unicows itself, allowing the linker to resolve symbols to it instead of the wrapped
-  # libraries
-  '-Clink-arg=unicows.lib',
-
   # Then add back the default libs that were removed
   '-Clink-args=kernel32.lib advapi32.lib user32.lib gdi32.lib shell32.lib comdlg32.lib version.lib mpr.lib rasapi32.lib winmm.lib winspool.lib vfw32.lib secur32.lib oleacc.lib oledlg.lib sensapi.lib',
-
-  # Add modern universal CRT for missing float/math intrinsics
-  '-Clink-arg=libucrt.lib',
 ]

@@ -2,7 +2,8 @@ use anyhow::Context;
 
 use anyhow::Result;
 use crate::App;
-use crate::confirmation::{ActivationMode, InstallationId, ProductId, generate};
+use crate::product_id::ProductId;
+use crate::confirmation::{ActivationMode, InstallationId, generate};
 
 pub fn execute(_app: &App, installation_id: &str, mode: ActivationMode, product_id: Option<ProductId>) -> Result<()> {
     let installation_id = InstallationId::parse(installation_id, mode, product_id).context("unable to parse installation ID")?;
@@ -19,7 +20,7 @@ pub fn execute(_app: &App, installation_id: &str, mode: ActivationMode, product_
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::confirmation::error::ConfirmationIdError;
+    use crate::confirmation::error::InstallationIdError;
 
     #[test]
     fn test_parse() {
@@ -28,19 +29,19 @@ mod tests {
         );
         assert!(
             InstallationId::parse("33448155882687086284384456622182339279486245740110381", ActivationMode::Windows, None)
-                .is_err_and(|err| err == ConfirmationIdError::TooShort),
+                .is_err_and(|err| err == InstallationIdError::TooShort),
         );
         assert!(
             InstallationId::parse("3344815588268708628438445662218233927948624574011038100", ActivationMode::Windows, None)
-                .is_err_and(|err| err == ConfirmationIdError::TooLong),
+                .is_err_and(|err| err == InstallationIdError::TooLong),
         );
         assert!(
             InstallationId::parse("33448155882687086284384456622182339279486245740110381!", ActivationMode::Windows, None)
-                .is_err_and(|err| err == ConfirmationIdError::InvalidCharacter),
+                .is_err_and(|err| err == InstallationIdError::InvalidCharacter),
         );
         assert!(
             InstallationId::parse("334481558826870862843844566221823392794862457401103811", ActivationMode::Windows, None)
-                .is_err_and(|err| err == ConfirmationIdError::InvalidCheckDigit),
+                .is_err_and(|err| err == InstallationIdError::InvalidCheckDigit),
         );
     }
 

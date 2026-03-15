@@ -9,6 +9,7 @@ mod logger;
 mod crypto;
 mod bink;
 mod pidgen;
+mod product_id;
 mod serde_bigint;
 
 use anyhow::Result;

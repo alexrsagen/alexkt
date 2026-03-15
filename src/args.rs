@@ -3,7 +3,8 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 use num_traits::{Unsigned, Num};
 
-use crate::confirmation::{ActivationMode, ProductId};
+use crate::product_id::ProductId;
+use crate::confirmation::ActivationMode;
 use crate::pidgen::v2::KeyVariant as KeyVariantV2;
 use crate::pidgen::v3::KeyVersion as KeyVersionV3;
 

@@ -5,12 +5,14 @@ mod confirmation;
 mod cmd;
 mod error;
 mod keydb;
+mod license_agent;
 mod logger;
 mod crypto;
 mod bink;
 mod pidgen;
 mod product_id;
 mod serde_bigint;
+mod system_directory;
 
 use anyhow::Result;
 

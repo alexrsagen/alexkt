@@ -7,7 +7,7 @@ use crate::bytesize::BytesBase2;
 #[derive(Debug)]
 pub enum Error {
     FileRead { e: std::io::Error, path: PathBuf },
-    GetSystemDirectory(winsafe::co::ERROR),
+    GetSystemDirectory(windows::core::Error),
     Pe(editpe::ImageReadError),
     Base24(base24::error::Error),
     PeMissingResourceTableDataDirectory,

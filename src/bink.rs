@@ -10,6 +10,7 @@ use num_bigint::BigInt;
 use crate::bytesize::{BytesBase2, MIB};
 use crate::error::{Error, Result};
 use crate::crypto::{EllipticCurve, PublicKey, WithCurve, WithPublicKey};
+use crate::system_directory::get_system_directory;
 
 pub fn get_binkey_resources_from_image(image: &Image) -> Result<Vec<Binkey>> {
     let mut binkeys = Vec::new();
@@ -84,7 +85,7 @@ pub fn get_binkey_resources_from_file<P: AsRef<Path>>(file_path: P) -> Result<Ve
 }
 
 pub fn get_binkey_resources_from_system_file() -> Result<Vec<Binkey>> {
-    let system32_path = winsafe::GetSystemDirectory().map_err(Error::GetSystemDirectory)?;
+    let system32_path = get_system_directory().map_err(Error::GetSystemDirectory)?;
     let system_file_path = PathBuf::from(&system32_path).join("pidgen.dll");
     get_binkey_resources_from_file(&system_file_path)
 }

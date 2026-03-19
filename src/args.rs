@@ -47,7 +47,7 @@ pub enum Command {
         #[clap(long, value_parser = maybe_hex::<u32>)]
         bink_id: u32,
         /// Channel ID
-        #[clap(long, value_parser = maybe_hex::<u32>)]
+        #[clap(long, value_parser = maybe_hex::<u32>, default_value = "0")]
         channel_id: u32,
         /// Whether the key is an upgrade key
         #[clap(long, default_value = "false")]
@@ -65,6 +65,13 @@ pub enum Command {
         #[clap(long)]
         product_id: Option<ProductId>,
     },
+
+    #[clap(alias = "activate")]
+    ActivateXP {
+        /// Force re-activation, even if Windows is already activated
+        #[clap(long)]
+        force: bool,
+    },
 }
 
 #[derive(Debug, Parser)]
@@ -80,7 +87,7 @@ pub struct Args {
 
     /// Command
     #[clap(subcommand)]
-    pub cmd: Command,
+    pub cmd: Option<Command>,
 }
 
 impl Args {

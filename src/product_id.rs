@@ -82,6 +82,10 @@ impl ProductId {
         Ok(product_id)
     }
 
+    pub fn channel_id(&self) -> u32 {
+        self.id[1]
+    }
+
     pub fn mix(&self) -> u64 {
         (self.id[0] as u64) << 41 |
         (self.id[1] as u64) << 58 |

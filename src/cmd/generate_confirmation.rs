@@ -15,8 +15,6 @@ pub fn execute(_app: &App, installation_id: &str, mode: ActivationMode, product_
     Ok(())
 }
 
-// TODO: write command to fetch installation ID, generate and install confirmation ID, based on xp_activate32.c
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -29,7 +29,8 @@ log = "0.4"
 env_logger = { version = "0.10", features = ["humantime"], default-features = false }
 anyhow = "1.0"
 editpe = "0.2"
-winsafe = { version = "0.0.22", features = ["kernel"] }
+windows-core = "0.62"
+windows = { version = "0.62", features = ["Win32_System_SystemInformation", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Variant"] }
 num-integer = "0.1"
 num-bigint = { version = "0.5", features = ["rand_0_10"] }
 num-traits = "0.2"
